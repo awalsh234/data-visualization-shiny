@@ -35,19 +35,6 @@ Participants (PID) navigated Eastern State Penitentiary in small groups and iden
 
 ---
 
-## 🚀 Project Structure
-
-data-visualization-shiny/
-├── data/ # Contains df.rda (de-identified dataset)
-├── outputs/ # Saved interactive plots (e.g., plotly .html files)
-├── notebooks/ # R Markdown walkthrough (data-visualization.Rmd)
-├── scripts/ # Standalone Shiny App (app.R)
-├── .gitignore
-├── README.md
-
-
----
-
 ## 💡 Key Features
 
 - **Static Violin Plots** comparing emotional intensity by emotion and regulation strategy  
@@ -80,7 +67,7 @@ Navigate to `/notebooks`, open `data-visualization.Rmd`, and knit to HTML for a 
 - Data overview  
 - Exploratory plots  
 - Interactive visualizations  
-- Animated outputs  
+- Animated outputs
 
 **Requirements:**  
 Install dependencies if needed:
@@ -88,3 +75,26 @@ Install dependencies if needed:
 ```r
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(gganimate, htmlwidgets, naniar, plotly, RColorBrewer, shiny, tidyverse, transformr, VIM)
+
+### 2️⃣ Run the Shiny App
+From the project root or /scripts folder:
+
+library(shiny)
+runApp("scripts/app.R")
+Interact with dropdown menus to filter the data by:
+
+- Emotion
+- Fear Level
+- Regulation Strategy
+
+The plot updates in real time based on your selections.
+
+## Future Directions
+Potential project expansions include:
+
+More advanced filtering in the Shiny app
+
+Integration of additional individual difference variables (e.g., Anxiety, Depression)
+
+## Acknowledgments
+Data provided by the SAN & AML Lab, used here for educational and portfolio demonstration purposes.
