@@ -75,6 +75,7 @@ Install dependencies if needed:
 ```r
 if (!require(pacman)) install.packages("pacman")
 pacman::p_load(gganimate, htmlwidgets, naniar, plotly, RColorBrewer, shiny, tidyverse, transformr, VIM)
+```
 
 ### 2️⃣ Run the Shiny App
 From the project root or /scripts folder:
