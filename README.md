@@ -1,6 +1,4 @@
-# data-visualization-shiny
-
-Fright Night Data Visualization Project
+# Fright Night Data Visualization Project
 Author: Annie Walsh
 Date: July 2025
 
