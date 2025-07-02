@@ -1,0 +1,149 @@
+---
+title: "data-visualization"
+author: "Annie Walsh"
+date: "2025-07-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Set up
+
+Get everything ready to work with - install packges, load in data, set wd
+
+## Load Packages
+
+Will be using the pacman package - contains p_load function (will accept packages names that we want to use)
+
+```{r}
+if (!require(pacman)) install.packages("pacman")
+pacman::p_load(gganimate, htmlwidgets, naniar, plotly, RColorBrewer, shiny, tidyverse, transformr, VIM)
+
+```
+## Loading Data
+
+```{r}
+# set working directory
+getwd()
+## dir_plots <- "/Users/annewalsh/Desktop/git_projects/data-visualization"
+dir_plots <- "outputs"
+
+```
+
+```{r}
+# Load dataframe 
+load("/Users/annewalsh/Desktop/git_projects/data-visualization/df.rda")
+
+```
+
+## Data Overview
+
+This is a subset of deidentified data from the SAN & AML lab’s 2019 haunted house study, wherein participants were asked to traverse Eastern State Penitentiary in groups of 3 to 5 people and then report on their memories, affective experiences, and regulatory behavior. Participants (PID) reported on 10 chronologically-ordered events (Events) that occurred within the house to which they had a significant emotional reaction. Participants identified which emotions they experienced (“Emotion”), how intense those emotions were (“Emo.Extent”), and how much effort they put into regulating those emotions (“Reg.Extent”). Other factors include summary statistics for depression (“BDI”), anxiety (“STAI”), regulation tendencies (“ERQ”), uncertainty tolerance (“IUS”), and general fear levels in the haunted house (“Fear_During”).
+
+**note this data has already been wrangled to be appropriate for visualization**
+
+## Cleaning 
+
+This is already ready to go - so no missing data, but just to have typical code all in one place, will temporarily create some to illustrate
+
+```{r}
+
+# Setting a seed to ensure that the sampling below happens the same way everytime.
+##set.seed(1)
+
+# Create a temporary dataframe for demonstration purposes that's identical to our master dataframe
+##df_temp <- df
+
+# Iterate through each column of the temporary dataframe
+##for (i in 1:ncol(df_temp)){
+  # Randomly choose between 1 and 50 rows with which we can replace the current value with NA
+ ## df_temp[sample(x = 1:nrow(df_temp), 
+     ##            size = sample(x = 1:50,
+       ##                        size = 1), 
+         ##        replace = F),i] <- NA 
+#}
+
+# Execute the gg_miss_var command on the temporary dataframe
+##gg_miss_var(df_temp)
+
+
+```
+Will create a printout for exactly how many variables aree missing for each column (aka variables). 
+
+Good to know, but is there a specific pattern of missingness that warrants concern?
+
+```{r}
+##summary(VIM::aggr(df_temp, sort_VAR = TRUE))$combinations
+        
+        
+```
+
+
+From 'aggr', we get a few outputs:
+
+We get visualization and text output of the proportion of data missing for each variable (similar to 'gg_miss_var')
+We get text output of the combinations of missing data and how often those combinations recur. Our most frequent combination is no missing data (42.8% of rows), which is great! We then see the next most common is only missing data in the final row (03.4% of rows), and so on. We also get a visualization for this one as well.
+
+```{r}
+# We won't be needing this anymore
+##rm(df_temp)
+```
+
+## Violin Plots
+
+Use Violin Plots to get a sense of what the data look like. 
+
+Let’s generate a violin plot to examine how the z-scored emotional intensity variable (Emo.Extent_z) changes when people use different regulation strategies (Strategy), as moderated by which emotion people are feeling at any given time (Emotion). Let’s save this variable as an object named plot_violin. We’ll be using this plot again later.
+
+```{r}
+plot_violin <- ggplot(data = df, aes(x = Strategy, y = Emo.Extent_z, fill=Emotion, color = Emotion)) + 
+      theme_classic()+
+      geom_jitter(aes(alpha=0.2, color=Emotion),shape=16, position=position_jitter(0.2)) + 
+      geom_violin(trim=F, alpha=0.5) +
+      scale_color_brewer(palette = "Dark2") +
+      scale_fill_brewer(palette = "Set3") +
+      xlab("Negative Emotions") +
+      ylab("Affective intensity (z)") +
+      theme(legend.position="none") +
+      geom_boxplot(width=0.2, color="black", alpha=0.2) +  
+      facet_wrap(~Emotion)
+
+plot_violin
+```
+
+# Generating Plots
+
+Static plots are great, but dynamic plots carry much more information:
+
+```{r}
+ggplotly(p = plot_violin)
+
+```
+
+Note - key differences here:
+* You can hover your mouse over any datapoint and see a point out with information relevant about that datapoint. * You can also hover over the violin component to see information relevant to the distribution * You can also hover over the boxplot to see information relevant to the mean and IQR * In the upper right corner, there are functions to zoom in and out of the plot and pan to view image with greater resolution * There are also options to view single datapoints or compare data
+
+### Save plots
+
+Not that useful to just keep plots in R - export 'plotly' plots as interactive html widgets using the 'htmlwidgets' package.
+
+```{r}
+#setwd(dir_plots)
+saveWidget(ggplotly(p = plot_violin), file="plot_violin_int.html")
+
+```
+
+# Animated Visualizations
+
+going to use the gganimate package to generate animated ggplot visualizations.
+
+
+```{r}
+ggplot(df, aes(x = Emo.Extent_z, y = Reg.Extent_z)) +
+       stat_smooth(method="lm", alpha = .25, size = 2) +
+       theme_classic() +
+       labs(title = 'Event: {frame_time}', x = 'Affective Intensity', y = 'Regulation Effort') +
+       transition_time(as.integer(Event))
+```
